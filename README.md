@@ -2,7 +2,7 @@
 
 ## Dokumentacja + slajdy
 
-* https://infotraining.bitbucket.io/cpp-adv
+* https://cpp-adv.infotraining.pl/
 * https://infotraining.bitbucket.io/cpp-adv/slides/
 
 ## Konfiguracja środowiska
