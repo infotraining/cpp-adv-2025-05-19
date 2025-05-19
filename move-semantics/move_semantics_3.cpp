@@ -59,14 +59,8 @@ public:
     {
         if (this != &other)
         {
-            name_ = std::move(other.name_);
-
-            delete[] data_;
-            data_ = other.data_;
-            other.data_ = nullptr;
-
-            size_ = other.size_;
-            other.size_ = 0;
+            Data temp = std::move(other);
+            swap(temp);
         }
 
         std::cout << "Data=(" << name_ << ": mv)\n";

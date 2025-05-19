@@ -34,13 +34,16 @@ namespace Explain
         {
             if (this != &other)
             {
-                delete ptr_;
-
-                ptr_ = other.ptr_;
-                other.ptr_ = nullptr;
+                unique_ptr<T> temp = std::move(other);
+                swap(temp);
             }
 
             return *this;
+        }
+
+        void swap(unique_ptr& other)
+        {
+            std::swap(ptr_, other.ptr_);
         }
 
         T* get() const
