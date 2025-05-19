@@ -47,7 +47,32 @@ public:
         return *this;
     }
 
-    // TODO: move semantics
+    Data(Data&& other) : name_(std::move(other.name_)), data_(other.data_), size_(other.size_)
+    {
+        other.data_ = nullptr;
+        other.size_ = 0;
+
+        std::cout << "Data(" << name_ << ": mv)\n";
+    }
+
+    Data& operator=(Data&& other)
+    {
+        if (this != &other)
+        {
+            name_ = std::move(other.name_);
+
+            delete[] data_;
+            data_ = other.data_;
+            other.data_ = nullptr;
+
+            size_ = other.size_;
+            other.size_ = 0;
+        }
+
+        std::cout << "Data=(" << name_ << ": mv)\n";
+
+        return *this;
+    }
 
     ~Data()
     {
@@ -95,4 +120,7 @@ TEST_CASE("Data & move semantics")
 
     Data backup = ds1; // copy
     Helpers::print(backup, "backup");
+
+    Data target = std::move(ds1);
+    Helpers::print(target, "target");
 }
