@@ -14,19 +14,19 @@ using namespace Helpers;
 
 void have_fun(Gadget& g)
 {
-    puts(__PRETTY_FUNCTION__);
+    std::cout << __PRETTY_FUNCTION__ << "\n";
     g.use();
 }
 
 void have_fun(const Gadget& cg)
 {
-    puts(__PRETTY_FUNCTION__);
+    std::cout << __PRETTY_FUNCTION__ << "\n";
     cg.use();
 }
 
 void have_fun(Gadget&& g)
 {
-    puts(__PRETTY_FUNCTION__);
+    std::cout << __PRETTY_FUNCTION__ << "\n";
     g.use();
 }
 
@@ -48,14 +48,56 @@ namespace WithoutPerfectForwarding
     }
 } // namespace WithoutPerfectForwarding
 
+namespace PerfectForwarding
+{
+    template <typename TGadget>
+    void use(TGadget&& g)
+    {
+        have_fun(std::forward<TGadget>(g));
+
+        // if (TGadget is lvalue_ref)
+        // {
+        //     have_fun(g);
+        // }
+        // else // TGadget is not lvalue_ref
+        // {
+        //     have_fun(std::move(g));
+        // }
+    }
+}
+
 TEST_CASE("using gadget")
 {
     Gadget g{1, "g"};
     const Gadget cg{2, "const g"};
 
-    using WithoutPerfectForwarding::use;
+    using PerfectForwarding::use;
 
     use(g);
     use(cg);
     use(Gadget{3, "temporary gadget"});
+}
+
+
+template <typename T>
+void ref_collapse_1(T& item)
+{
+    std::cout << __PRETTY_FUNCTION__ << "\n";
+}
+
+template <typename T>
+void ref_collapse_2(T&& item)
+{
+    std::cout << __PRETTY_FUNCTION__ << "\n";
+}
+
+TEST_CASE("reference collapsing")
+{
+    int x = 32;
+    ref_collapse_1(x);
+    ref_collapse_1<int>(x);
+    ref_collapse_1<int&>(x);    
+    ref_collapse_1<int&&>(x);
+
+    ref_collapse_2<int&>(x);
 }

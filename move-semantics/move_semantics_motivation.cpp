@@ -12,6 +12,7 @@ namespace Explain
     template <typename T>
     class vector
     {
+        std::vector<T> item_;
     public:
         void push_back(const T& item)
         {
@@ -21,6 +22,12 @@ namespace Explain
         void push_back(T&& item)
         {
             std::cout << "move of " << item << " to vector\n";
+        }
+
+        template <typename TItem>
+        void push_back_alt(TItem&& item)
+        {
+            item_.push_back(std::forward<TItem>(item));
         }
     };
 }
@@ -61,7 +68,13 @@ struct MyValue
     int id;
     std::string value;
 
-    MyValue(int id, const std::string& v) : id(id), value(v)
+    // MyValue(int id, const std::string& v) : id(id), value(v)
+    // {}
+
+    // MyValue(int id, std::string&& v) : id(id), value(std::move(v))
+    // {}
+
+    MyValue(int id, std::string v) : id(id), value(std::move(v))
     {}
 };
 
@@ -76,9 +89,11 @@ TEST_CASE("moving primitive types")
 
 TEST_CASE("default special functions")
 {
-    MyValue mv1{1, "mv1"};
+    std::string name = "mv1";
+    MyValue mv1{1, name};
 
-    MyValue mv2 = mv1; // cc
+    MyValue mv2{2, "mv2"};
+
     MyValue mv3 = std::move(mv1); // mv
 
     REQUIRE(mv1.id == 1);
@@ -86,4 +101,44 @@ TEST_CASE("default special functions")
 
     REQUIRE(mv3.id == 1);
     REQUIRE(mv3.value == "mv1");
+}
+
+
+struct X
+{
+    std::string name;
+
+    X() = default;
+
+    X(std::string n) : name(std::move(n))
+    {}
+    
+    // X(const X&) = default;
+    // X& operator=(const X&) = default;
+    // X(X&&) = default;
+    // X& operator=(X&&) = default;
+
+    // ~X()
+    // {
+    //     std::cout << "~X(" << name << ")\n";
+    // }
+
+    friend std::ostream& operator<<(std::ostream& out, const X& obj)
+    {
+        return out << "X(" << obj.name << ")";
+    }
+};
+
+TEST_CASE("special functions")
+{
+    X x("Text");
+    std::cout << "x = " << x << "\n";
+
+    X copy_x = x;
+    std::cout << "copy_x = " << copy_x << "\n";
+
+    X target = std::move(x);
+    std::cout << "target = " << target << "\n";
+
+    std::cout << "x after move = " << x << "\n";
 }

@@ -122,5 +122,10 @@ TEST_CASE("Data & move semantics")
     Helpers::print(backup, "backup");
 
     Data target = std::move(ds1);
+
+    SECTION("move is static_cast<Data&&>")
+    {
+        Data target = static_cast<Data&&>(ds1);
+    }
     Helpers::print(target, "target");
 }

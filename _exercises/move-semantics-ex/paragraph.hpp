@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vector>
 #include <memory>
+#include <utility>
 
 namespace LegacyCode
 {
@@ -38,6 +39,31 @@ namespace LegacyCode
         {
             std::strcpy(buffer_, txt);
         }
+
+        // Paragraph(Paragraph&& p)
+        //     : buffer_(p.buffer_)
+        // {
+        //     p.buffer_ = nullptr;
+        // }
+
+        Paragraph(Paragraph&& p) 
+            : buffer_(std::exchange(p.buffer_, nullptr)) // buffer_ <- p.buffer <- nullptr
+        {
+        }
+
+        Paragraph& operator=(Paragraph&& p) 
+        {
+            if (&p != this) 
+            {
+                delete[] buffer_;
+                
+                // buffer_ = p.buffer_;
+                // p.buffer_ = nullptr;
+                buffer_ = std::exchange(p.buffer_, nullptr);
+            }
+
+            return *this;
+        } 
 
         Paragraph& operator=(const Paragraph& p)
         {
@@ -76,7 +102,6 @@ public:
     virtual void draw() const = 0;
 };
 
-// TODO - ensure that Text is copyable & moveable type
 class Text : public Shape
 {
     int x_, y_;
@@ -119,7 +144,10 @@ struct ShapeGroup : public Shape
             s->draw();
     }
 
-    // TODO - implement adding a shape to a shapes container
+    void add(std::unique_ptr<Shape> shape)
+    {
+        shapes.push_back(std::move(shape));
+    }
 };
 
 #endif /*PARAGRAPH_HPP_*/
