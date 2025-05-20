@@ -66,6 +66,15 @@ namespace ReturnTypeFromTemplateFunction
             return a;
         }
     }
+
+    namespace Ver_4
+    {
+        template <typename T1, typename T2, typename TResult = std::common_type_t<T1, T2>>
+        TResult maximum(T1 a, T2 b)
+        {
+            return a < b ? a : b;
+        }
+    }
 } // namespace ReturnTypeFromTemplateFunction
 
 TEST_CASE("return types from template functions")
@@ -76,6 +85,7 @@ TEST_CASE("return types from template functions")
     REQUIRE(ReturnTypeFromTemplateFunction::Ver_1::maximum<double>(a, b) == 42.0);
     REQUIRE(ReturnTypeFromTemplateFunction::Ver_2::maximum(a, b) == 42.0);
     REQUIRE(ReturnTypeFromTemplateFunction::Ver_3::maximum(a, b) == 42.0);
+    REQUIRE(ReturnTypeFromTemplateFunction::Ver_4::maximum(a, b) == 42);
 }
 
 TEST_CASE("class templates")
