@@ -163,7 +163,7 @@ TEST_CASE("Owner & unique_ptr")
 
 void may_throw()
 {
-    throw 42;
+    //throw 42;
 }
 
 TEST_CASE("custom deallocators")
@@ -184,6 +184,14 @@ TEST_CASE("custom deallocators")
 
         fprintf(f.get(), "text");
         may_throw();
+    }
+
+    SECTION("lambda as deallocator")
+    {
+        auto deallocator = [](FILE* f) { std::cout << "Closing file\n"; std::fclose(f); };
+        std::unique_ptr<FILE, decltype(deallocator)> f{std::fopen("file.dat", "w+"), deallocator};
+
+        fprintf(f.get(), "text");
     }
 }
 
