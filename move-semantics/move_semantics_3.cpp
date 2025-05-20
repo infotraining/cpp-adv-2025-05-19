@@ -28,6 +28,7 @@ public:
         std::cout << "Data(" << name_ << ")\n";
     }
 
+    // copy semantics
     Data(const Data& other)
         : name_(other.name_)
         , size_(other.size_)
@@ -47,7 +48,8 @@ public:
         return *this;
     }
 
-    Data(Data&& other) : name_(std::move(other.name_)), data_(other.data_), size_(other.size_)
+    // move semantics
+    Data(Data&& other) noexcept : name_(std::move(other.name_)), data_(other.data_), size_(other.size_)
     {
         other.data_ = nullptr;
         other.size_ = 0;
@@ -55,7 +57,7 @@ public:
         std::cout << "Data(" << name_ << ": mv)\n";
     }
 
-    Data& operator=(Data&& other)
+    Data& operator=(Data&& other) noexcept
     {
         if (this != &other)
         {
@@ -68,34 +70,34 @@ public:
         return *this;
     }
 
-    ~Data()
+    ~Data() noexcept
     {
         delete[] data_;
     }
 
-    void swap(Data& other)
+    void swap(Data& other) noexcept
     {
         name_.swap(other.name_);
         std::swap(data_, other.data_);
         std::swap(size_, other.size_);
     }
 
-    iterator begin()
-    {
+    iterator begin() noexcept
+    {        
         return data_;
     }
 
-    iterator end()
+    iterator end() noexcept
     {
         return data_ + size_;
     }
 
-    const_iterator begin() const
+    const_iterator begin() const noexcept
     {
         return data_;
     }
 
-    const_iterator end() const
+    const_iterator end() const noexcept
     {
         return data_ + size_;
     }
@@ -122,4 +124,36 @@ TEST_CASE("Data & move semantics")
         Data target = static_cast<Data&&>(ds1);
     }
     Helpers::print(target, "target");
+}
+
+TEST_CASE("pushing to vector")
+{
+    std::vector<Data> vec;
+
+    vec.push_back(Data{"ds1", {1, 2, 3, 4}});
+    vec.push_back(Data{"ds2", {1, 2, 3, 4}});
+    vec.push_back(Data{"ds3", {1, 2, 3, 4}});
+    vec.push_back(Data{"ds4", {1, 2, 3, 4}});
+    vec.push_back(Data{"ds5", {1, 2, 3, 4}});
+    vec.push_back(Data{"ds6", {1, 2, 3, 4}});
+}
+
+void foo() noexcept
+{
+}
+
+void bar()
+{    
+}
+
+TEST_CASE("noexcept")
+{
+    void (*ptr_fun)() noexcept = nullptr;
+
+    ptr_fun = foo;
+
+    SECTION("since C++17")
+    {
+        static_assert(not std::is_same_v<decltype(foo), decltype(bar)>);
+    }
 }

@@ -16,7 +16,7 @@ namespace LegacyCode
         char* buffer_;
 
     protected:
-        void swap(Paragraph& p)
+        void swap(Paragraph& p) noexcept
         {
             std::swap(buffer_, p.buffer_);
         }
@@ -28,16 +28,24 @@ namespace LegacyCode
             std::strcpy(buffer_, "Default text!");
         }
 
+        Paragraph(const char* txt)
+            : buffer_(new char[1024])
+        {
+            std::strcpy(buffer_, txt);
+        }
+
         Paragraph(const Paragraph& p)
             : buffer_(new char[1024])
         {
             std::strcpy(buffer_, p.buffer_);
         }
 
-        Paragraph(const char* txt)
-            : buffer_(new char[1024])
+        Paragraph& operator=(const Paragraph& p)
         {
-            std::strcpy(buffer_, txt);
+            Paragraph temp(p);
+            swap(temp);
+
+            return *this;
         }
 
         // Paragraph(Paragraph&& p)
@@ -46,12 +54,12 @@ namespace LegacyCode
         //     p.buffer_ = nullptr;
         // }
 
-        Paragraph(Paragraph&& p) 
+        Paragraph(Paragraph&& p) noexcept
             : buffer_(std::exchange(p.buffer_, nullptr)) // buffer_ <- p.buffer <- nullptr
         {
         }
 
-        Paragraph& operator=(Paragraph&& p) 
+        Paragraph& operator=(Paragraph&& p) noexcept 
         {
             if (&p != this) 
             {
@@ -65,20 +73,12 @@ namespace LegacyCode
             return *this;
         } 
 
-        Paragraph& operator=(const Paragraph& p)
-        {
-            Paragraph temp(p);
-            swap(temp);
-
-            return *this;
-        }
-
         void set_paragraph(const char* txt)
         {
             std::strcpy(buffer_, txt);
         }
 
-        const char* get_paragraph() const
+        const char* get_paragraph() const noexcept
         {
             return buffer_;
         }
@@ -88,7 +88,7 @@ namespace LegacyCode
             std::cout << "Rendering text '" << buffer_ << "' at: [" << posx << ", " << posy << "]" << std::endl;
         }
 
-        virtual ~Paragraph()
+        virtual ~Paragraph() noexcept
         {
             delete[] buffer_;
         }

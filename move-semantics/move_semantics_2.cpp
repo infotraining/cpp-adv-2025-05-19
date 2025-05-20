@@ -16,7 +16,7 @@ namespace Explain
         T* ptr_;
 
     public:
-        explicit unique_ptr(T* ptr)
+        explicit unique_ptr(T* ptr) noexcept
             : ptr_{ptr}
         { }
 
@@ -24,13 +24,13 @@ namespace Explain
         unique_ptr& operator=(const unique_ptr& other) = delete;
 
         // move constructor
-        unique_ptr(unique_ptr&& other) : ptr_{other.ptr_}
+        unique_ptr(unique_ptr&& other) noexcept : ptr_{other.ptr_}
         {
             other.ptr_ = nullptr;
         }
 
         // move assignment operator
-        unique_ptr& operator=(unique_ptr&& other)
+        unique_ptr& operator=(unique_ptr&& other) noexcept
         {
             if (this != &other)
             {
@@ -41,27 +41,34 @@ namespace Explain
             return *this;
         }
 
-        void swap(unique_ptr& other)
+        void swap(unique_ptr& other) noexcept
         {
             std::swap(ptr_, other.ptr_);
         }
 
-        T* get() const
+        T* get() const noexcept
         {
             return ptr_;
         }
 
-        ~unique_ptr()
+        T* release() noexcept
+        {
+            T* old_value = ptr_;
+            ptr_ = nullptr;
+            return old_value;
+        }
+
+        ~unique_ptr() noexcept
         {
             delete ptr_;
         }
 
-        T& operator*() const
+        T& operator*() const noexcept
         {
             return *ptr_;
         }
 
-        T* operator->() const
+        T* operator->() const noexcept
         {
             return ptr_;
         }
