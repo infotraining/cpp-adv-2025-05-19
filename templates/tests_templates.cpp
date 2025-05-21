@@ -177,37 +177,37 @@ struct Array
 
     T items[N];
 
-    size_t size() const
+    constexpr size_t size() const
     {
         return N;
     }
 
-    reference operator[](size_t index)
+    constexpr reference operator[](size_t index)
     {
         return items[index];
     }
 
-    const_reference operator[](size_t index) const
+    constexpr const_reference operator[](size_t index) const
     {
         return items[index];
     }
 
-    iterator begin()
+    constexpr iterator begin()
     {
         return items;
     }
 
-    const_iterator begin() const
+    constexpr const_iterator begin() const
     {
         return items;
     }
 
-    iterator end()
+    constexpr iterator end()
     {
         return items + N;
     }
 
-    const_iterator end() const
+    constexpr const_iterator end() const
     {
         return items + N;
     }
