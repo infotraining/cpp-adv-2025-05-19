@@ -18,6 +18,24 @@ template <int N>
 constexpr int Value_v = Value<N>::value; 
 
 /////////////////////////////////////////////////
+template <typename T, T v>
+struct IntegralConstant 
+{
+    static constexpr T value = v;
+};
+
+template <typename T, T v>
+constexpr T IntegralConstant_v = IntegralConstant<T, v>::value; 
+
+static_assert(IntegralConstant_v<char, 'a'> == 'a');
+
+template <bool v>
+using BoolConstant = IntegralConstant<bool, v>;
+
+using TrueType = BoolConstant<true>;
+using FalseType = BoolConstant<false>;
+
+/////////////////////////////////////////////////
 
 template <typename T>
 struct Identity
@@ -31,15 +49,13 @@ using Identity_t = typename Identity<T>::type;
 /////////////////////////////////////////////////
 
 template <typename T1, typename T2>
-struct IsSame
+struct IsSame : FalseType
 {
-    static constexpr bool value = false;
 };
 
 template <typename T>
-struct IsSame<T, T>
+struct IsSame<T, T> : TrueType
 {
-    static constexpr bool value = true;
 };
 
 template <typename T1, typename T2>
@@ -103,4 +119,31 @@ TEST_CASE("get_value")
 
     int* ptr = &x;
     REQUIRE(get_value(ptr) == 42);
+}
+
+////////////////////////////////////////////////////////////////
+
+template <typename T>
+struct RemoveConst
+{
+    using type = T;
+};
+
+template <typename T>
+struct RemoveConst<const T>
+{
+    using type = T;
+};
+
+template <typename T>
+using RemoveConst_t = typename RemoveConst<T>::type;
+
+TEST_CASE("remove_const")
+{
+    using T1 = int;
+    using T2 = const int;
+
+    using T3 = RemoveConst_t<T2>;
+
+    static_assert(std::is_same_v<T1, T3>);
 }
