@@ -66,13 +66,33 @@ TEST_CASE("type traits")
 ///////////////////////////////////////////////////////
 
 // trait IsPointer_v
+template <typename T>
+struct IsPointer
+{
+    static constexpr bool value = false;
+};
+
+template <typename T>
+struct IsPointer<T*>
+{
+    static constexpr bool value = true;
+};
+
+template <typename T>
+constexpr bool IsPointer_v = IsPointer<T>::value;
 
 template <typename T>
 auto get_value(T obj)
 {
-    // return obj;
-
-    // return *obj;
+    if constexpr (std::is_pointer_v<T>)
+    {
+        assert(obj != nullptr);
+        return *obj;
+    }
+    else
+    {
+        return obj;
+    }
 }
 
 TEST_CASE("get_value")
